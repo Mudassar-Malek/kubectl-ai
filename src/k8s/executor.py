@@ -507,3 +507,130 @@ class ToolExecutor:
 
         result = await self.kubectl.execute(" ".join(cmd_parts))
         return result.output if result.success else f"Error: {result.error}"
+
+    async def _handle_cluster_health(self, args: dict) -> str:
+        """Get cluster health report."""
+        from src.k8s.health import ClusterHealthChecker
+        
+        checker = ClusterHealthChecker(self.kubectl.config.kubeconfig)
+        report = await checker.get_health_report()
+        return report.to_string()
+
+    async def _handle_security_audit(self, args: dict) -> str:
+        """Run security audit on the cluster."""
+        from src.k8s.health import SecurityAuditor
+        
+        auditor = SecurityAuditor(self.kubectl.config.kubeconfig)
+        report = await auditor.get_audit_report()
+        return report.to_string()
+
+    async def _handle_explain_error(self, args: dict) -> str:
+        """Explain why a resource has an error."""
+        resource_type = args["resource_type"]
+        name = args["name"]
+        namespace = args.get("namespace", "default")
+        
+        # Get resource status
+        cmd_parts = ["get", resource_type, name, "-n", namespace, "-o", "yaml"]
+        result = await self.kubectl.execute(" ".join(cmd_parts))
+        
+        if not result.success:
+            return f"Cannot find {resource_type}/{name} in namespace {namespace}"
+        
+        # Get events for this resource
+        events_cmd = ["get", "events", "-n", namespace, 
+                     f"--field-selector=involvedObject.name={name}",
+                     "--sort-by=.lastTimestamp"]
+        events_result = await self.kubectl.execute(" ".join(events_cmd))
+        
+        # Describe the resource
+        describe_cmd = ["describe", resource_type, name, "-n", namespace]
+        describe_result = await self.kubectl.execute(" ".join(describe_cmd))
+        
+        output = [
+            f"=== Diagnosis for {resource_type}/{name} ===",
+            "",
+            "--- Recent Events ---",
+            events_result.output if events_result.success else "No events found",
+            "",
+            "--- Resource Details ---",
+            describe_result.output[:2000] if describe_result.success else "Could not describe resource"
+        ]
+        
+        return "\n".join(output)
+
+    async def _handle_generate_yaml(self, args: dict) -> str:
+        """Generate YAML from description (returns template for LLM to fill)."""
+        description = args["description"]
+        resource_type = args["resource_type"].lower()
+        
+        templates = {
+            "deployment": '''apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {name}
+  labels:
+    app: {name}
+spec:
+  replicas: {replicas}
+  selector:
+    matchLabels:
+      app: {name}
+  template:
+    metadata:
+      labels:
+        app: {name}
+    spec:
+      containers:
+      - name: {name}
+        image: {image}
+        ports:
+        - containerPort: {port}
+        resources:
+          limits:
+            memory: "{memory}"
+            cpu: "{cpu}"''',
+            
+            "service": '''apiVersion: v1
+kind: Service
+metadata:
+  name: {name}
+spec:
+  selector:
+    app: {name}
+  ports:
+  - port: {port}
+    targetPort: {target_port}
+  type: {type}''',
+            
+            "configmap": '''apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {name}
+data:
+  {key}: {value}''',
+            
+            "pod": '''apiVersion: v1
+kind: Pod
+metadata:
+  name: {name}
+spec:
+  containers:
+  - name: {name}
+    image: {image}
+    ports:
+    - containerPort: {port}'''
+        }
+        
+        template = templates.get(resource_type, templates["deployment"])
+        
+        return f"""Based on the description: "{description}"
+
+Here's a YAML template for a {resource_type}:
+
+```yaml
+{template}
+```
+
+Please fill in the placeholders ({{name}}, {{image}}, etc.) based on your requirements.
+To apply, save to a file and run: kubectl apply -f <filename>.yaml"""

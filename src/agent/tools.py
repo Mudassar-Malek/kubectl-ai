@@ -53,6 +53,49 @@ KUBERNETES_TOOLS_LITE: list[dict[str, Any]] = [
             "required": [],
         },
     },
+    {
+        "name": "cluster_health",
+        "description": "Get cluster health score and status. Shows nodes, pods, deployments, services health.",
+        "input_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+        },
+    },
+    {
+        "name": "security_audit",
+        "description": "Run security audit on the cluster. Checks for privileged containers, root users, missing resource limits, network policies.",
+        "input_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+        },
+    },
+    {
+        "name": "explain_error",
+        "description": "Explain why a pod or resource has an error. Diagnoses CrashLoopBackOff, ImagePullBackOff, Pending, etc.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "resource_type": {"type": "string", "description": "Resource type (pod, deployment)"},
+                "name": {"type": "string", "description": "Resource name"},
+                "namespace": {"type": "string", "description": "Namespace"},
+            },
+            "required": ["resource_type", "name"],
+        },
+    },
+    {
+        "name": "generate_yaml",
+        "description": "Generate Kubernetes YAML from natural language description.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "description": {"type": "string", "description": "Natural language description of what to create"},
+                "resource_type": {"type": "string", "description": "Resource type: deployment, service, configmap, secret, pod"},
+            },
+            "required": ["description", "resource_type"],
+        },
+    },
 ]
 
 # Full tools for Claude API (larger context supported)
