@@ -482,6 +482,46 @@ def validate(ctx):
         sys.exit(1)
 
 
+@cli.command()
+@click.pass_context
+def health(ctx):
+    """Check cluster health and get a health score.
+    
+    Example: k8s-bot health
+    """
+    import asyncio
+    from src.k8s.health import ClusterHealthChecker
+    
+    config = ctx.obj["config"]
+    
+    console.print("[bold]Checking cluster health...[/bold]\n")
+    
+    checker = ClusterHealthChecker(config.kubeconfig)
+    report = asyncio.run(checker.get_health_report())
+    
+    console.print(report.to_string())
+
+
+@cli.command()
+@click.pass_context
+def security(ctx):
+    """Run security audit on the cluster.
+    
+    Example: k8s-bot security
+    """
+    import asyncio
+    from src.k8s.health import SecurityAuditor
+    
+    config = ctx.obj["config"]
+    
+    console.print("[bold]Running security audit...[/bold]\n")
+    
+    auditor = SecurityAuditor(config.kubeconfig)
+    report = asyncio.run(auditor.get_audit_report())
+    
+    console.print(report.to_string())
+
+
 def main():
     """Main entry point."""
     cli(obj={})
