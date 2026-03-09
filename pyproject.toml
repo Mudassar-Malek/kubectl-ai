@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "k8s-intellibot"
+version = "1.0.0"
+description = "An agentic AI-powered chatbot for Kubernetes management"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "K8s IntelliBot Team"}
+]
+keywords = ["kubernetes", "ai", "chatbot", "claude", "devops", "kubectl"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: System :: Systems Administration",
+]
+dependencies = [
+    "anthropic>=0.39.0",
+    "click>=8.1.0",
+    "rich>=13.0.0",
+    "python-dotenv>=1.0.0",
+    "pyyaml>=6.0.0",
+    "kubernetes>=28.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.0.0",
+    "black>=24.0.0",
+    "ruff>=0.1.0",
+]
+slack = [
+    "slack-bolt>=1.18.0",
+    "slack-sdk>=3.21.0",
+]
+
+[project.scripts]
+k8s-bot = "src.main:main"
+
+[project.urls]
+Homepage = "https://github.com/your-org/k8s-intellibot"
+Documentation = "https://github.com/your-org/k8s-intellibot#readme"
+Repository = "https://github.com/your-org/k8s-intellibot.git"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311", "py312"]
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]

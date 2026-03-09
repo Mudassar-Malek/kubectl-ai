@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  k8s-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: k8s-intellibot:latest
+    container_name: k8s-intellibot
+    stdin_open: true
+    tty: true
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - K8S_BOT_SAFE_MODE=${K8S_BOT_SAFE_MODE:-true}
+      - K8S_BOT_DRY_RUN=${K8S_BOT_DRY_RUN:-false}
+      - K8S_BOT_TIMEOUT=${K8S_BOT_TIMEOUT:-30}
+      - K8S_BOT_LOG_LEVEL=${K8S_BOT_LOG_LEVEL:-INFO}
+      - K8S_BOT_MODEL=${K8S_BOT_MODEL:-claude-sonnet-4-20250514}
+    volumes:
+      # Mount kubeconfig for cluster access
+      - ${HOME}/.kube:/home/k8sbot/.kube:ro
+      # For EKS: AWS credentials
+      - ${HOME}/.aws:/home/k8sbot/.aws:ro
+      # For GKE: Google credentials
+      - ${HOME}/.config/gcloud:/home/k8sbot/.config/gcloud:ro
+      # For AKS: Azure credentials
+      - ${HOME}/.azure:/home/k8sbot/.azure:ro
+    # Network mode host allows kubectl to reach clusters on localhost (minikube, kind)
+    network_mode: host
+
+  # Development service with live reload
+  k8s-bot-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: k8s-intellibot:dev
+    container_name: k8s-intellibot-dev
+    stdin_open: true
+    tty: true
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - K8S_BOT_SAFE_MODE=true
+      - K8S_BOT_DRY_RUN=true  # Safe for development
+      - K8S_BOT_LOG_LEVEL=DEBUG
+    volumes:
+      - ${HOME}/.kube:/home/k8sbot/.kube:ro
+      - ./src:/app/src:ro  # Mount source for development
+    network_mode: host
+    profiles:
+      - dev
+
+# Volume for persistent conversation history (optional future feature)
+volumes:
+  k8s-bot-data:
