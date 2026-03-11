@@ -21,3 +21,6 @@ pytest-cov>=4.0.0
 # Optional: Slack integration
 # slack-bolt>=1.18.0
 # slack-sdk>=3.21.0
+
+# Optional: MCP (Model Context Protocol) server
+# mcp>=1.0.0
