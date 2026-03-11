@@ -13,6 +13,31 @@ An **agentic AI-powered chatbot** for Kubernetes management. Ask questions about
 - **Safety First**: Destructive operations require confirmation; supports dry-run mode
 - **Beautiful CLI**: Rich terminal interface with formatted output
 - **Fully Portable**: Clone, configure, and run in minutes
+- **MCP Server**: Use as an MCP server with Cursor IDE - Claude can directly query your clusters!
+- **Cluster Health Score**: Instant health overview with actionable insights
+- **Security Audit**: Automated security scanning for misconfigurations
+
+---
+
+## 🚀 MCP Server Setup (Use with Cursor IDE)
+
+The fastest way to use kubectl-ai is as an MCP server with Cursor. Claude can then directly query your Kubernetes clusters!
+
+```bash
+# Clone and setup
+git clone https://github.com/Mudassar-Malek/kubectl-ai.git
+cd kubectl-ai
+./scripts/setup-mcp.sh
+
+# Restart Cursor, then ask Claude:
+# "Show me all pods in my cluster"
+# "Check the health of my Kubernetes cluster"
+# "Run a security audit"
+```
+
+**That's it!** No Ollama needed - Claude is the AI. See [MCP Setup Guide](docs/MCP_SETUP.md) for details.
+
+---
 
 ## Quick Start with Minikube (5 Minutes)
 
