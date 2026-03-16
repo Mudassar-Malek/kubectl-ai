@@ -114,8 +114,8 @@ def handle_mention(event, say, logger):
     # Process query with fresh agent
     try:
         agent = create_agent()
-        response = asyncio.run(agent.process(text))
-        formatted = format_response(response)
+        result = asyncio.run(agent.run(text))
+        formatted = format_response(result.text)
         say(f"<@{user}>\n```\n{formatted}\n```")
     except Exception as e:
         logger.error(f"Error processing query: {e}")
@@ -144,8 +144,8 @@ def handle_dm(event, say, logger):
     # Process query with fresh agent
     try:
         agent = create_agent()
-        response = asyncio.run(agent.process(text))
-        formatted = format_response(response)
+        result = asyncio.run(agent.run(text))
+        formatted = format_response(result.text)
         say(f"```\n{formatted}\n```")
     except Exception as e:
         logger.error(f"Error processing DM: {e}")
@@ -175,8 +175,8 @@ def handle_slash_command(ack, respond, command, logger):
     
     try:
         agent = create_agent()
-        response = asyncio.run(agent.process(text))
-        formatted = format_response(response)
+        result = asyncio.run(agent.run(text))
+        formatted = format_response(result.text)
         respond(f"```\n{formatted}\n```")
     except Exception as e:
         logger.error(f"Error processing slash command: {e}")

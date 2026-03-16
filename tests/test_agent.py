@@ -114,7 +114,7 @@ class TestKubernetesAgent:
         mock_response.stop_reason = "end_turn"
         mock_response.content = [MagicMock(text="Here are your pods: nginx, redis")]
 
-        with patch.object(agent.client.messages, "create", return_value=mock_response):
+        with patch.object(agent.llm, "create_message", return_value=mock_response):
             result = await agent.run("Show me all pods")
 
             assert result.success
@@ -140,8 +140,8 @@ class TestKubernetesAgent:
         final_response.content = [MagicMock(text="Here are your pods")]
 
         with patch.object(
-            agent.client.messages,
-            "create",
+            agent.llm,
+            "create_message",
             side_effect=[tool_use_response, final_response],
         ):
             result = await agent.run("Show me all pods")
@@ -166,7 +166,7 @@ class TestKubernetesAgent:
         ]
 
         with patch.object(
-            agent.client.messages, "create", return_value=tool_use_response
+            agent.llm, "create_message", return_value=tool_use_response
         ):
             result = await agent.run("Complex query")
 
@@ -177,8 +177,8 @@ class TestKubernetesAgent:
     async def test_error_handling(self, agent):
         """Test agent handles errors gracefully."""
         with patch.object(
-            agent.client.messages,
-            "create",
+            agent.llm,
+            "create_message",
             side_effect=Exception("API Error"),
         ):
             result = await agent.run("Show me pods")
