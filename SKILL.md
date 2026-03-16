@@ -15,14 +15,18 @@ Perform autonomous Kubernetes operations using natural language. Diagnose issues
 
 ## Prerequisites
 
-- `user-kubectl-ai` MCP server (required) — kubectl command execution
+- `kubectl-ai` MCP server configured in Cursor (see [SETUP.md](./SETUP.md))
 - Valid `KUBECONFIG` environment variable pointing to cluster config
 - For enterprise clusters: `eiamcli login` for authentication
 
-**Verify MCP is ready:**
+**First-time setup:**
+```bash
+git clone https://github.com/your-org/k8s-bot.git && cd k8s-bot
+./scripts/setup-mcp.sh  # Automated setup
+# Then restart Cursor
 ```
-Check MCP tools/kubectl_get.json exists and contains the tool schema
-```
+
+**Verify MCP is ready:** Check `kubectl-ai` appears in Cursor MCP tools
 
 ## Quick-Start Decision Tree
 

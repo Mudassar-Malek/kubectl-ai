@@ -88,4 +88,4 @@ class ConversationMemory:
             return "No user queries in history."
 
         recent = user_queries[-3:] if len(user_queries) > 3 else user_queries
-        return f"Recent topics: {', '.join(recent[:50] for q in recent)}"
+        return f"Recent topics: {', '.join(q[:50] for q in recent)}"
